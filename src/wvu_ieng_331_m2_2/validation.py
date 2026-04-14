@@ -52,6 +52,6 @@ def _connect(db_path: str | Path) -> duckdb.DuckDBPyConnection:
         FileNotFoundError: [path] If the database file does not exist.
     """
     db_path = Path(db_path)
-    if not db_path.exist():
+    if not db_path.exists():
         raise FileNotFoundError(f"Database not found: {db_path}")
     return duckdb.connect(str(db_path), read_only=True)
