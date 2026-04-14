@@ -1,23 +1,27 @@
+-- Parameters:
+--   $1 :: DATE     -- start_date filter (NULL = no lower bound)
+--   $2 :: DATE     -- end_date filter   (NULL = no upper bound)
+
 WITH product_revenue AS (
     SELECT
         oi.product_id,
         ROUND(SUM(oi.price + oi.freight_value), 2) AS total_revenue
-    FROM olist.main.order_items oi
-    JOIN olist.main.orders o ON oi.order_id = o.order_id
+    FROM order_items oi
+    JOIN orders o ON oi.order_id = o.order_id
     WHERE o.order_status NOT IN ('canceled', 'unavailable')
+      AND ($1 IS NULL OR CAST(o.order_purchase_timestamp AS DATE) >= $1)
+      AND ($2 IS NULL OR CAST(o.order_purchase_timestamp AS DATE) <= $2)
     GROUP BY oi.product_id
 ),
---similar to seller_performance (total cost for product)
 revenue_with_totals AS (
     SELECT
         product_id,
         total_revenue,
-        SUM(total_revenue) OVER ()                                  AS grand_total,--revenue for all products
-        ROUND(total_revenue * 100.0 / SUM(total_revenue) OVER (), 4) AS revenue_pct,--how much this product contributes to total revenue
-        SUM(total_revenue) OVER (ORDER BY total_revenue DESC)       AS running_total --running total of revenue for products in descending order
+        SUM(total_revenue) OVER ()                                   AS grand_total,
+        ROUND(total_revenue * 100.0 / SUM(total_revenue) OVER (), 4) AS revenue_pct,
+        SUM(total_revenue) OVER (ORDER BY total_revenue DESC)        AS running_total
     FROM product_revenue
 ),
-
 classified AS (
     SELECT
         product_id,
@@ -31,7 +35,6 @@ classified AS (
         END AS abc_tier
     FROM revenue_with_totals
 )
---cumulative percentages with A, B, C tiers for top 80, next 15, and next 5
 SELECT
     c.product_id,
     ct.product_category_name_english AS category,
@@ -40,7 +43,6 @@ SELECT
     c.cumulative_pct,
     c.abc_tier
 FROM classified c
-LEFT JOIN olist.main.products p ON c.product_id = p.product_id
-LEFT JOIN olist.main.category_translation ct ON p.product_category_name = ct.product_category_name
+LEFT JOIN products p             ON c.product_id = p.product_id
+LEFT JOIN category_translation ct ON p.product_category_name = ct.product_category_name
 ORDER BY c.total_revenue DESC;
---join products and cat for readability and A tier products are first
