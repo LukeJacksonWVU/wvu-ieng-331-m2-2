@@ -28,3 +28,12 @@ KEY_COLUMNS: dict[str, list[str]] = {
     "products": ["product_id"],
     "sellers": ["seller_id"],
 }
+
+MIN_ROW_COUNTS: dict[str, int] = {
+    "orders": 1_000,
+    "order_items": 1_000,
+    "customers": 1_000,
+}
+
+# Olist data set start to end (new data included)
+DATE_RANGE_EARLIEST: date = date(2016, 1, 1)
