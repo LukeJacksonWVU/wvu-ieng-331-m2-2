@@ -37,3 +37,21 @@ MIN_ROW_COUNTS: dict[str, int] = {
 
 # Olist data set start to end (new data included)
 DATE_RANGE_EARLIEST: date = date(2016, 1, 1)
+
+
+def _connect(db_path: str | Path) -> duckdb.DuckDBPyConnection:
+    """Open a read-only DuckDB connection.
+
+    Args:
+        db_path: Path to the DuckDB database file.
+
+    Returns:
+        An open DuckDB connection.
+
+    Raises:
+        FileNotFoundError: [path] If the database file does not exist.
+    """
+    db_path = Path(db_path)
+    if not db_path.exist():
+        raise FileNotFoundError(f"Database not found: {db_path}")
+    return duckdb.connect(str(db_path), read_only=True)
