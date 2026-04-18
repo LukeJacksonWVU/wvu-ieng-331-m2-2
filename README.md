@@ -43,11 +43,17 @@ This file should be used to evaluate product performance on the market and the v
 - `chart.html` -
 This is a .html, made using Vega-Altair, file containing: total revenue, with seller state on the x-axis and average composite score on the y-axis.
 
-This file should be used as a visual reference of seller across states
+This file should be used as a visual reference of seller performance across states
 
 ## Validation Checks
 
-List each validation check your pipeline runs before analysis and what happens if it fails.
+Prior to analysis, the pipeline performs the following validation checks:
+
+- Database Validation: Ensures the DuckDB database actually exists. If not, pipeline stops with an error output.
+- Schema Validation: Confirms that required tables and columns exist. If not, validation fails.
+- Data Quality: Ensures that key fields, such as timestamps, are not null. Also ensures that data is logically consistent, such as end dates following start dates.
+
+- On failure: `--halt-on-validation-failure` is set and pipeline stops
 
 ## Analysis Summary
 
