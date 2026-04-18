@@ -165,3 +165,76 @@ def get_delivery_time_analysis(
     
     sql = _load_sql("delivery_time_analysis.sql")
     return _execute(db_path, sql, [seller_state, start_date, end_date])
+# --- Data Quality Functions ---
+
+
+def get_row_counts(db_path: str | Path) -> pl.DataFrame:
+    """Return row counts for all nine dataset tables.
+
+    Args:
+        db_path: Path to the DuckDB database file.
+
+    Returns:
+        DataFrame with columns: tableName, rowCount.
+    """
+    # counts all rows across all tables
+    sql = _load_sql("row_count.sql")
+    return _execute(db_path, sql)
+
+
+def get_date_range(db_path: str | Path) -> pl.DataFrame:
+    """Return the min/max order date and span statistics.
+
+    Args:
+        db_path: Path to the DuckDB database file.
+
+    Returns:
+        DataFrame with columns: firstOrderDate, lastOrderDate,
+        PurchaseDays, calendarDays.
+    """
+    # scans the date range
+    sql = _load_sql("date_range.sql")
+    return _execute(db_path, sql)
+
+
+def get_null_check(db_path: str | Path) -> pl.DataFrame:
+    """Return per-table null percentages for key ID columns.
+
+    Args:
+        db_path: Path to the DuckDB database file.
+
+    Returns:
+        DataFrame with columns: tableName, totalRows, nullCustomerIdPercent,
+        nullOrderIdPercent, nullProductIdPercent, nullSellerIdPercent.
+    """
+    # checks nulls
+    sql = _load_sql("null_check.sql")
+    return _execute(db_path, sql)
+
+
+def get_duplicate_check(db_path: str | Path) -> pl.DataFrame:
+    """Return duplicate key counts for orders, customers, and products.
+
+    Args:
+        db_path: Path to the DuckDB database file.
+
+    Returns:
+        DataFrame with columns: tableName, duplicateKeys, totalDuplicateRows.
+    """
+    # checks for duplicates
+    sql = _load_sql("duplicate_check.sql")
+    return _execute(db_path, sql)
+
+
+def get_orphaned_keys(db_path: str | Path) -> pl.DataFrame:
+    """Return orphaned foreign-key counts across core join paths.
+
+    Args:
+        db_path: Path to the DuckDB database file.
+
+    Returns:
+        DataFrame with columns: foreignKeys, orphan_count.
+    """
+    # checks join paths
+    sql = _load_sql("orphaned_keys.sql")
+    return _execute(db_path, sql)
