@@ -53,7 +53,7 @@ Prior to analysis, the pipeline performs the following validation checks:
 - Schema Validation: Confirms that required tables and columns exist. If not, validation fails.
 - Data Quality: Ensures that key fields, such as timestamps, are not null. Also ensures that data is logically consistent, such as end dates following start dates.
 
-- On failure: `--halt-on-validation-failure` is set and pipeline stops
+- On failure: By defualt, a warning is logged and pipeline continues. However, if `--halt-on-validation-failure` is set, the pipeline stops
 
 ## Analysis Summary
 
